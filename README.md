@@ -179,3 +179,108 @@ Optional bonus:
 - add authentication for SSE or HTTP transport
 - support both SQLite and PostgreSQL with the same MCP surface
 - add richer output annotations or pagination
+
+## Local Implementation Guide
+
+This repository includes a completed implementation in `implementation/`.
+
+### Setup
+
+If you already have a virtual environment from another lab, such as `day4`, activate it first and install the requirements there:
+
+```bash
+path\to\day4\Scripts\activate
+pip install -r requirements.txt
+python implementation/init_db.py
+```
+
+Or create a new environment for this repository:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python implementation/init_db.py
+```
+
+### Run the MCP Server
+
+```bash
+python implementation/mcp_server.py
+```
+
+The server uses stdio by default, which is the simplest transport for local MCP clients.
+
+### Run the Smoke Verification
+
+```bash
+python implementation/verify_server.py
+```
+
+This resets the SQLite database, then demonstrates:
+
+- searching students in cohort `A1`
+- inserting a new student
+- averaging enrollment scores
+- counting students by cohort
+- reading `schema://database`
+- reading `schema://table/students`
+- returning a clear error for an invalid table
+
+### Run Automated Tests
+
+```bash
+pytest implementation/tests
+```
+
+### Inspector
+
+The easiest way is to activate the environment where `fastmcp` is installed, then run the helper script. For your setup, activate `day4` first.
+
+PowerShell:
+
+```bash
+path\to\day4\Scripts\activate
+.\implementation\start_inspector.ps1
+```
+
+Windows command prompt:
+
+```bash
+path\to\day4\Scripts\activate.bat
+implementation\start_inspector.cmd
+```
+
+The helper scripts disable browser auto-open to avoid the common Windows `spawn EPERM` error. They print the Inspector URL in the terminal, and you open that URL manually in your browser.
+
+Manual command, if you want to type it yourself:
+
+```bash
+BROWSER=none npx -y @modelcontextprotocol/inspector C:\ABSOLUTE\PATH\TO\.venv\Scripts\python.exe C:\ABSOLUTE\PATH\TO\implementation\mcp_server.py
+```
+
+In Inspector, verify:
+
+- tools: `search`, `insert`, `aggregate`
+- resources: `schema://database`, `schema://table/{table_name}`
+- valid call: search `students` with `{"cohort": "A1"}`
+- invalid call: search a missing table
+
+### Example Codex MCP Config
+
+```toml
+[mcp_servers.sqlite_lab]
+command = "C:\\ABSOLUTE\\PATH\\TO\\.venv\\Scripts\\python.exe"
+args = ["C:\\ABSOLUTE\\PATH\\TO\\implementation\\mcp_server.py"]
+```
+
+This repository also includes a ready-to-edit example file at [.codex/config.toml.example](<C:/Users/ADMIN/Day26-Track3-MCP-tool-integration/.codex/config.toml.example>). You can copy the same values into your real Codex config at `~/.codex/config.toml` and adjust the Python path if needed.
+
+### Demo Evidence
+
+This repository includes an evidence folder for screenshots:
+
+- [evidence/README.md](<C:/Users/ADMIN/Day26-Track3-MCP-tool-integration/evidence/README.md>)
+- [evidence/screenshots.md](<C:/Users/ADMIN/Day26-Track3-MCP-tool-integration/evidence/screenshots.md>)
+
+Use the four screenshot filenames documented there so the rendered Markdown page shows the complete demo evidence clearly.
